@@ -1,14 +1,24 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Menu, Bell, User, Download, LogOut } from 'lucide-react';
+import { Menu, Bell, User, Download, LogOut, RefreshCw } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { exportData } from '../api/api';
 import { format } from 'date-fns';
 
 interface HeaderProps {
   toggleSidebar: () => void;
+  lastUpdate?: Date;
+  refreshInterval?: number;
+  onRefreshIntervalChange?: (interval: number) => void;
+  onRefresh?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
+const Header: React.FC<HeaderProps> = ({ 
+  toggleSidebar, 
+  lastUpdate,
+  refreshInterval = 30,
+  onRefreshIntervalChange,
+  onRefresh
+}) => {
   const { user, logout } = useAuth();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -74,14 +84,40 @@ const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
 
   return (
     <header className="bg-gray-800/95 backdrop-blur-sm shadow-lg flex items-center justify-between px-4 py-3 sticky top-0 z-50">
-      <div className="flex items-center">
+      <div className="flex items-center space-x-4">
         <button 
           onClick={toggleSidebar}
           className="text-gray-400 hover:text-white focus:outline-none p-2 rounded-lg hover:bg-gray-700/50 transition-colors duration-200"
         >
           <Menu size={24} />
         </button>
-        <h1 className="ml-4 text-xl font-semibold text-white">UMM-BSID Monitoring System</h1>
+        <h1 className="text-xl font-semibold text-white">UMM-BSID Monitoring System</h1>
+        
+        {lastUpdate && (
+          <div className="hidden md:flex items-center space-x-4 ml-4">
+            <p className="text-sm text-gray-400">
+              Last updated: {format(lastUpdate, 'dd MMM yyyy HH:mm:ss')}
+            </p>
+            <div className="flex items-center">
+              <select 
+                value={refreshInterval}
+                onChange={(e) => onRefreshIntervalChange?.(Number(e.target.value))}
+                className="bg-gray-700 text-white text-sm rounded-md border-0 focus:ring-2 focus:ring-blue-500"
+              >
+                <option value={10}>10s</option>
+                <option value={30}>30s</option>
+                <option value={60}>1m</option>
+                <option value={300}>5m</option>
+              </select>
+              <button 
+                onClick={onRefresh}
+                className="ml-2 p-1.5 bg-blue-600 hover:bg-blue-700 rounded-md text-sm transition-colors duration-200"
+              >
+                <RefreshCw size={16} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       
       <div className="flex items-center space-x-4">

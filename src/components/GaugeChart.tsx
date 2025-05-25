@@ -14,6 +14,7 @@ interface SensorGaugeProps {
   refreshInterval?: number;
   showStatus?: boolean;
   animate?: boolean;
+  isOnline?: boolean;
 }
 
 const SensorGauge: React.FC<SensorGaugeProps> = ({
@@ -27,7 +28,8 @@ const SensorGauge: React.FC<SensorGaugeProps> = ({
   showPercent = false,
   lastUpdate,
   showStatus = false,
-  animate = false
+  animate = false,
+  isOnline = true
 }) => {
   // Normalize the value between 0 and 1 for the gauge
   const normalizedValue = (value - minValue) / (maxValue - minValue);
@@ -35,6 +37,13 @@ const SensorGauge: React.FC<SensorGaugeProps> = ({
 
   return (
     <div className="bg-gray-800 rounded-lg p-4 flex flex-col items-center relative">
+      <div className="absolute top-4 right-4">
+        <div className={`flex items-center ${isOnline ? 'text-green-500' : 'text-red-500'}`}>
+          <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'} mr-2 ${isOnline ? 'animate-pulse' : ''}`} />
+          <span className="text-xs">{isOnline ? 'Online' : 'Offline'}</span>
+        </div>
+      </div>
+
       <h3 className="text-gray-300 text-sm font-medium mb-2">{title}</h3>
       
       <GaugeChart
